@@ -23,4 +23,4 @@ Com ela é possivel criar um usuario, fazer login em um usuario
 - Post /auth/signin -> rota de login  
 - Post /auth/signup -> rota de cadastro usuario
 - post /auth/useotp -> rota para gerar o token JWT
-- get private -> rota para testar a validação do token JWT
+- get private -> rota para testar a validação do token JWT 
