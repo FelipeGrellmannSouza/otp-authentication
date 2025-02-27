@@ -1,9 +1,11 @@
 import { RequestHandler } from "express";
 import { authSignInSchema } from "../schemas/auth-signin";
 import { createUser, getUserByEmail } from "../services/user";
-import { genereteOTP } from "../services/otps";
+import { genereteOTP, validateOTP } from "../services/otp";
 import { sendEmail } from "../libs/mailtrap";
 import { authSignUpSchema } from "../schemas/auth-signup";
+import { authUseOTPSchema } from "../schemas/auth-useOTP";
+import { createJWT } from "../libs/jwt";
 
 export const signin: RequestHandler = async (req, res) => {
     //validar o dado recebido 
@@ -48,5 +50,25 @@ export const signup: RequestHandler = async (req, res) => {
 
     //retornar os dados do usuário récem-criado 
     res.status(201).json({ user: newUser });
+
+}
+
+export const useOTP: RequestHandler = async (req, res) => {
+    // validar os dados recebidos otp e id do otp
+    const data = authUseOTPSchema.safeParse(req.body);
+    if (!data.success) {
+        res.json({ error: data.error.flatten().fieldErrors });
+        return;
+    }
+    // validar o OTP
+    const user = await validateOTP(data.data.id, data.data.code);
+    if (!user) {
+        res.json({ error: "OTP inválido ou expirado" });
+        return
+    }
+    // criar o JWT
+    const token = createJWT(user.id);
+    // usar o JWT
+    res.json({ token, user })
 
 }
